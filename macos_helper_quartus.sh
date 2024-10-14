@@ -10,6 +10,21 @@ YELLOW_COLOR='\033[0;33m'
 RED_COLOR='\033[0;31m'
 END_COLOR='\033[0m'
 
+VZ="false"
+if [ "$1" = "vz" ]; then
+    VZ="true"
+    echo "VZ mode will be used."
+elif [ "$1" = "qemu" ]; then
+    VZ="false"
+    echo "Qemu mode will be used"
+else
+    echo "Usage: $0 mode"
+    echo "Virtualization modes:"
+    echo "vz - faster solution with Apple Virtualization Framework."
+    echo "qemu - slower classical solution. Requires usage of Screen Sharing tool."
+    exit 1 
+fi
+
 # Check whether VM already exists and exit if so:
 if [ -d ~/.lima/$VM_NAME ]; then
     echo -e "${RED_COLOR}$VM_NAME virtual machine is already exist.$END_COLOR"
@@ -18,10 +33,15 @@ if [ -d ~/.lima/$VM_NAME ]; then
     exit 1
 fi
 
-# Install lima and create a new VM:
+# Install lima and create a new VM.
+# We can use either vz or qemu for virtualization:
 brew install lima wget
 mkdir ~/.lima/$VM_NAME
-cp lima.yaml.tmpl ~/.lima/$VM_NAME/lima.yaml
+if [ "$VZ" = "true" ]; then
+    cp lima.yaml.tmpl.vz ~/.lima/$VM_NAME/lima.yaml
+else
+    cp lima.yaml.tmpl ~/.lima/$VM_NAME/lima.yaml
+fi
 
 limactl start $VM_NAME
 
@@ -86,13 +106,25 @@ limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME ln -s /QuartusVM /home/$ACCOUNT_
 limactl stop $VM_NAME
 mkdir -p ~/QuartusVM
 sed -i '' 's,#SHARED_FOLDER,  - location\: "~/QuartusVM"\n    mountPoint\: "/QuartusVM"\n    writable: true,g' "$HOME/.lima/$VM_NAME/lima.yaml"
+if [ "$VZ" = "true" ]; then
+    sed -i '' 's,display: "none",display: "vz",g' "$HOME/.lima/$VM_NAME/lima.yaml"
+fi
+
 limactl start $VM_NAME 
 
-echo -e "\n==========================="
-echo -e "Use ${GREEN_COLOR}Screen Sharing${END_COLOR} tool with parameters:"
-echo -e "   Address: ${GREEN_COLOR}vnc://127.0.0.1:5900${END_COLOR}"
-echo -e "   VNC Password: ${GREEN_COLOR}$(cat ${PATH_TO_VNC_PASS})${END_COLOR}"
-echo -e "   Ubuntu login: ${GREEN_COLOR}$ACCOUNT_NAME${END_COLOR}"
-echo -e "   Ubuntu password: ${GREEN_COLOR}$ACCOUNT_PASSWORD${END_COLOR}"
-echo -e "NOTE: VNC password is stored on your Mac inside ${GREEN_COLOR}${PATH_TO_VNC_PASS}${END_COLOR}"
-echo -e "===========================\n"
+if [ "$VZ" = "true" ]; then
+    echo -e "\n==========================="
+    echo -e "Use the following commands"
+    echo -e "${GREEN_COLOR}limactl start ${VM_NAME}${END_COLOR} to start VM"
+    echo -e "${GREEN_COLOR}limactl stop ${VM_NAME}${END_COLOR} to stop VM"
+    echo -e "===========================\n"
+else
+    echo -e "\n==========================="
+    echo -e "Use ${GREEN_COLOR}Screen Sharing${END_COLOR} tool with parameters:"
+    echo -e "   Address: ${GREEN_COLOR}vnc://127.0.0.1:5900${END_COLOR}"
+    echo -e "   VNC Password: ${GREEN_COLOR}$(cat ${PATH_TO_VNC_PASS})${END_COLOR}"
+    echo -e "   Ubuntu login: ${GREEN_COLOR}$ACCOUNT_NAME${END_COLOR}"
+    echo -e "   Ubuntu password: ${GREEN_COLOR}$ACCOUNT_PASSWORD${END_COLOR}"
+    echo -e "NOTE: VNC password is stored on your Mac inside ${GREEN_COLOR}${PATH_TO_VNC_PASS}${END_COLOR}"
+    echo -e "===========================\n"
+fi

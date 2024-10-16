@@ -36,7 +36,7 @@ fi
 # Install lima and create a new VM.
 # We can use either vz or qemu for virtualization:
 brew install lima wget
-mkdir ~/.lima/$VM_NAME
+mkdir -p ~/.lima/$VM_NAME
 if [ "$VZ" = "true" ]; then
     cp lima.yaml.tmpl.vz ~/.lima/$VM_NAME/lima.yaml
 else
@@ -101,6 +101,9 @@ limactl shell $VM_NAME -- sudo bash -c "echo -e '[org.freedesktop.DisplayManager
 cp ubuntu_quartus_installer.sh /tmp/lima
 limactl shell $VM_NAME -- chmod +x /tmp/lima/ubuntu_quartus_installer.sh
 limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME /tmp/lima/ubuntu_quartus_installer.sh
+if [ $? -ne 0 ]; then
+    echo -e "${RED_COLOR}Something wrong happened during Quartus installation. Please retry or report the issue.${END_COLOR}"
+fi
 limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME ln -s /QuartusVM /home/$ACCOUNT_NAME/QuartusVM
 
 limactl stop $VM_NAME

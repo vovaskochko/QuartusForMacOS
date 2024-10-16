@@ -1,20 +1,40 @@
 #!/bin/bash
 
 QUARTUS_LINK="https://cdrdv2.intel.com/v1/dl/getContent/660904/660963?filename=Quartus-lite-20.1.1.720-linux.tar"
+QUARTUS_LINK_ACCEPT="https://cdrdv2.intel.com/v1/dl/acceptEula/660904/660963?filename=Quartus-lite-20.1.1.720-linux.tar"
 QUARTUS_ARCHIVE="$(realpath ~)/quartus_20.1.1.tar"
+QUARTUS_ARCHIVE_HASH="0bebcaece9d8a03af9a69a48adc45634"
 INSTALL_DIR="$(realpath ~)/intelFPGA_lite/20.1"
 QUARTUS_TMP_DIR=~/quartus
 
 # Download installer archive:
 echo "Downloading Quartus Lite installer..."
 for i in {1..5}; do
-    wget "$QUARTUS_LINK" -O "$QUARTUS_ARCHIVE"
-    if [ "$?" -eq 0 ]; then
+    rm -rf "$QUARTUS_ARCHIVE"
+    STATUS="fail"
+    wget "${QUARTUS_LINK}" -O "$QUARTUS_ARCHIVE"
+    if [ "$?" -ne 0 ]; then
+        continue
+    elif [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
+        STATUS="ok"
         break
+    else
+        wget "$QUARTUS_LINK_ACCEPT" -O "$QUARTUS_ARCHIVE"
+        echo "accept link!!!"
+        if [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
+            STATUS="ok"
+            break
+        fi
     fi
+
     echo -e "ERROR: Failed to download $QUARTUS_ARCHIVE, retrying..."
     sleep 5
 done
+
+if [ "$STATUS" = "fail" ]; then
+    echo "ERROR: Failed to download quartus installer"
+    exit 1
+fi
 
 # Extract archive to the folder and remove archive file to save some space:
 echo "Extracting Quartus Lite installer..."

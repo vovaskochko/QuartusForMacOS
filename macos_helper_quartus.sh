@@ -100,8 +100,10 @@ limactl shell $VM_NAME -- sudo bash -c "echo -e '[org.freedesktop.DisplayManager
 # Download quartus installer inside VM and run it:
 cp ubuntu_quartus_installer.sh /tmp/lima
 limactl shell $VM_NAME -- chmod +x /tmp/lima/ubuntu_quartus_installer.sh
+QUARTUS_SUCCESS=true
 limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME /tmp/lima/ubuntu_quartus_installer.sh
 if [ $? -ne 0 ]; then
+    QUARTUS_SUCCESS=false
     echo -e "${RED_COLOR}Something wrong happened during Quartus installation. Please retry or report the issue.${END_COLOR}"
 fi
 limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME ln -s /QuartusVM /home/$ACCOUNT_NAME/QuartusVM
@@ -114,6 +116,15 @@ if [ "$VZ" = "true" ]; then
 fi
 
 limactl start $VM_NAME 
+
+if [ "$QUARTUS_SUCCESS" = "false" ]; then
+    cp ubuntu_download_and_install_quartus.sh /tmp/lima
+    cp InstallQuartus.desktop /tmp/lima
+    limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME cp /tmp/lima/ubuntu_quartus_installer.sh /home/$ACCOUNT_NAME
+    limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME cp /tmp/lima/ubuntu_download_and_install_quartus.sh /home/$ACCOUNT_NAME
+    limactl shell $VM_NAME -- sudo chmod +x /home/$ACCOUNT_NAME/ubuntu_download_and_install_quartus.sh
+    limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME cp /tmp/lima/InstallQuartus.desktop /home/$ACCOUNT_NAME/Desktop
+fi
 
 if [ "$VZ" = "true" ]; then
     echo -e "\n==========================="

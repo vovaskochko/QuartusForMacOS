@@ -19,6 +19,7 @@ By default `quartus` VM is created with an ability to access GUI:
 2. Run the script and wait for completion:
 `./macos_helper_quartus.sh vz`
 **Note** In case of issues with **vz**(Apple Virtualization Framework) you can try to reinstall it with **qemu** virtualization `./macos_helper_quartus.sh qemu`.
+3. In case of quartus download failure you will find `Install Quartus` shortcut on desktop. Execute it once and follow the instructions.
 
 
 **How to use?(VZ installation)**

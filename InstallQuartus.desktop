@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Exec=./ubuntu_download_and_install_quartus.sh
+Path=~
+Name=Install Quartus
+Comment=Download and Install Quartus Prime Lite

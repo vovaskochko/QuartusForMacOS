@@ -7,6 +7,7 @@ QUARTUS_ARCHIVE_HASH="0bebcaece9d8a03af9a69a48adc45634"
 INSTALL_DIR="$(realpath ~)/intelFPGA_lite/20.1"
 QUARTUS_TMP_DIR=~/quartus
 
+mkdir -p ~/Desktop
 if [ "$#" -eq 1 ]; then
     if [ -f "$1" ]; then
         mv "$1" "${QUARTUS_ARCHIVE}"
@@ -14,7 +15,6 @@ if [ "$#" -eq 1 ]; then
 fi
 
 # Download installer archive:
-echo "Downloading Quartus Lite installer..."
 for i in {1..5}; do
     if [ -f "$QUARTUS_ARCHIVE" ]; then
         if [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
@@ -22,7 +22,7 @@ for i in {1..5}; do
             break
         fi
     fi
-
+    echo "Downloading Quartus Lite installer..."
     rm -rf "$QUARTUS_ARCHIVE"
     STATUS="fail"
     wget "${QUARTUS_LINK}" -O "$QUARTUS_ARCHIVE"
@@ -87,7 +87,6 @@ FILE=${INSTALL_DIR}/quartus/linux64/libedt_wedtq.so
 if [ ! -f "${FILE}orig" ]; then cp "${FILE}" "${FILE}orig"; sed -i 's/-novopt /        /g' "${FILE}"; fi
 
 # Add shortcut to Desktop to run Quartus:
-mkdir -p ~/Desktop
 echo '#!'"""/usr/bin/env xdg-open
 [Desktop Entry]
 Version=1.0

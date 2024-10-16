@@ -7,9 +7,22 @@ QUARTUS_ARCHIVE_HASH="0bebcaece9d8a03af9a69a48adc45634"
 INSTALL_DIR="$(realpath ~)/intelFPGA_lite/20.1"
 QUARTUS_TMP_DIR=~/quartus
 
+if [ "$#" -eq 1 ]; then
+    if [ -f "$1" ]; then
+        mv "$1" "${QUARTUS_ARCHIVE}"
+    fi
+fi
+
 # Download installer archive:
 echo "Downloading Quartus Lite installer..."
 for i in {1..5}; do
+    if [ -f "$QUARTUS_ARCHIVE" ]; then
+        if [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
+            STATUS="ok"
+            break
+        fi
+    fi
+
     rm -rf "$QUARTUS_ARCHIVE"
     STATUS="fail"
     wget "${QUARTUS_LINK}" -O "$QUARTUS_ARCHIVE"

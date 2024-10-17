@@ -106,9 +106,8 @@ if [ $? -ne 0 ]; then
     QUARTUS_SUCCESS=false
     echo -e "${RED_COLOR}Something wrong happened during Quartus installation. Please retry or report the issue.${END_COLOR}"
 fi
-limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME chown ${ACCOUNT_NAME}:root /home/$ACCOUNT_NAME
-limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME mkdir -p /home/$ACCOUNT_NAME/QuartusVM
-limactl shell $VM_NAME -- sudo -u $ACCOUNT_NAME chown ${ACCOUNT_NAME}:root /home/$ACCOUNT_NAME/QuartusVM
+limactl shell $VM_NAME -- sudo chown ${ACCOUNT_NAME}:root /home/$ACCOUNT_NAME
+limactl shell $VM_NAME -- sudo mkdir -p /home/$ACCOUNT_NAME/QuartusVM
 
 limactl stop $VM_NAME
 mkdir -p ~/QuartusVM

@@ -1,10 +1,14 @@
 **Overview**
-This solution for MacOS allows to install *Lima VM* with *Ubuntu Server 24.04(x86_64)* and *Xfce* desktop.
+
+This solution for MacOS allows to install *Lima VM* with *Ubuntu Server 24.04* and *Xfce* desktop.
+It uses x86_64 version of Ubuntu for Intel-based macs and aarch64 version for Apple M* processors.
+We are using qemu-user-static together with installation of amd64 and i386 packages to ensure that Quartus works fine.
 Also it downloads *Quartus Prime Lite 20.1.1* and installs it together with *ModelSim*. In addition `qenv.sh` and `quartus/linux64/libedt_wedtq.so` are patched to fix issues with start and -novopt option in Simulator.
 By default `quartus` VM is created with an ability to access GUI:
 - In case of **vz** GUI window will be opened automatically.
 - In case of **qemu** you should use *Screen Sharing* utility.
-**IMPORTANT** `QuartusVM` folder will be created in your Mac home folder and mounted to the folder `/home/user/QuartusVM` inside VM. Use this directory to create Quartus projects and to backup any important files. All the files will be stored on your Mac and will not be lost even if VM will be broken.
+
+**IMPORTANT:** `QuartusVM` folder will be created in your Mac home folder and mounted to the folder `/home/user/QuartusVM` inside VM. Use this directory to create Quartus projects and to backup any important files. All the files will be stored on your Mac and will not be lost even if VM will be broken.
 
 
 **Requirements**
@@ -18,29 +22,42 @@ By default `quartus` VM is created with an ability to access GUI:
 `chmod +x macos_helper_quartus.sh`
 2. Run the script and wait for completion:
 `./macos_helper_quartus.sh vz`
-**Note** In case of issues with **vz**(Apple Virtualization Framework) you can try to reinstall it with **qemu** virtualization `./macos_helper_quartus.sh qemu`.
+
+**Note:** In case of issues with **vz**(Apple Virtualization Framework) you can try to reinstall it with **qemu** virtualization `./macos_helper_quartus.sh qemu`.
+
 3. In case of quartus download failure you will find `Install Quartus` shortcut on desktop. Execute it once and follow the instructions.
 
 
 **How to use?(VZ installation)**
+
 0. In terminal run command `limactl start quartus`.
 1. Window with login should be open. By default Username is `user` and Password is `user`; you can change password with `passwd` command inside VM if needed.
 2. On Desktop find *Quartus Prime Lite* icon and double click on it to start the software.
-**NOTE** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software*.
-**NOTE** In case of Quartus hang use desktop shortcut *Kill Quartus*.
-5. To shutdown VM you can click top right corner with username `user` and use *Shut Down...* option.
+
+**NOTE:** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software*.
+
+**NOTE:** In case of Quartus hang use desktop shortcut *Kill Quartus*.
+
+3. To shutdown VM you can click top right corner with username `user` and use *Shut Down...* option.
 If VM doesn't respond you can use `limactl stop quartus` in MacOS terminal or in rare cases forced stop `limactl stop -f quartus` if stopping takes too much time.
 
 
 **How to use?(QEMU installation)**
+
 0. In terminal run command `limactl start quartus`.
 1. Open Screen Sharing(via Cmd + Space or Dock or Applications) and use **vnc://127.0.0.1:5900** as the address of target machine.
 2. You will be prompted to enter password. Get it with `cat ~/.lima/quartus/vncpassword`
-**NOTE** VNC Password will be changed after each VM reboot.
+
+**NOTE:** VNC Password will be changed after each VM reboot.
+
 3. Window with login should be open. By default Username is `user` and Password is `user`; you can change password with `passwd` command inside VM if needed.
+
 4. On Desktop find *Quartus Prime Lite* icon and double click on it to start the software.
-**NOTE** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software* and then close the program and start it again (Sometimes project creation on first run hang therefore we need that rerun of the program.)
-**NOTE** In case of Quartus hang use desktop shortcut *Kill Quartus*.
+
+**NOTE:** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software* and then close the program and start it again (Sometimes project creation on first run hang therefore we need that rerun of the program.)
+
+**NOTE:** In case of Quartus hang use desktop shortcut *Kill Quartus*.
+
 5. To shutdown VM you can click top right corner with username `user` and use *Shut Down...* option.
 If VM doesn't respond you can use `limactl stop quartus` in MacOS terminal or in rare cases forced stop `limactl stop -f quartus` if stopping takes too much time.
 

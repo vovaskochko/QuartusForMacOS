@@ -4,7 +4,7 @@ Also it downloads *Quartus Prime Lite 20.1.1* and installs it together with *Mod
 By default `quartus` VM is created with an ability to access GUI:
 - In case of **vz** GUI window will be opened automatically.
 - In case of **qemu** you should use *Screen Sharing* utility.
-**IMPORTANT** `QuartusVM` folder will be created in your Mac home folder and mounted to the folder `QuartusVM` inside VM. Use this directory to backup any important files from Quartus projects.
+**IMPORTANT** `QuartusVM` folder will be created in your Mac home folder and mounted to the folder `/home/user/QuartusVM` inside VM. Use this directory to create Quartus projects and to backup any important files. All the files will be stored on your Mac and will not be lost even if VM will be broken.
 
 
 **Requirements**

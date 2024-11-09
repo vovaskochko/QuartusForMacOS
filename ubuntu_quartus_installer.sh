@@ -116,6 +116,31 @@ Comment=Kill Quartus Prime Lite
 """ > ~/Desktop/KillQuartus.desktop
 chmod +x ~/Desktop/KillQuartus.desktop
 
+echo '#!'"""/bin/bash
+
+sudo VirtualHereClient &
+
+while ! lsusb | grep \"Altera Blaster\" > /dev/null ; do
+   sleep 1
+done
+
+echo Start JTag
+sudo killall -9 jtagd &> /dev/null
+sudo ${INSTALL_DIR}/quartus/bin/jtagconfig
+""" > ${INSTALL_DIR}/quartus/startUSBClient.sh
+chmod +x ${INSTALL_DIR}/quartus/startUSBClient.sh
+
+echo '#!'"""/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=true
+Exec="sudo ${INSTALL_DIR}/quartus/startUSBClient.sh"
+Icon=/usr/share/icons/elementary-xfce/devices/64/drive-harddisk-usb.png
+Name=USB Client
+Comment=Run VirtualHere client
+""" > ~/Desktop/RunUSBClient.desktop
+chmod +x ~/Desktop/RunUSBClient.desktop
 
 # Just report installation success:
 echo "Quartus Prime Lite and Model Simulator was installed successfully."

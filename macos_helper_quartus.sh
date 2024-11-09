@@ -84,10 +84,27 @@ limactl shell $VM_NAME -- sudo apt upgrade -y
 
 # Install xfce desktop, lightdm, Quartus dependencies and firefox:
 limactl shell $VM_NAME -- sudo DEBIAN_FRONTEND=noninteractive apt install -y \
-        libxft2:i386 libxext6:i386 libncurses6:i386 \
+        libxft2:i386 libxext6:i386 libncurses6:i386 libudev1:i386\
         bzip2:i386 g++-multilib libglibd-2.0-0:amd64 \
         libfreetype6:amd64 libsm6:amd64 libxrender1:amd64 \
-        libfontconfig1:amd64 libxext6:amd64 libcrypt1:amd64
+        libfontconfig1:amd64 libxext6:amd64 libcrypt1:amd64 \
+        linux-image-generic
+limactl shell $VM_NAME -- sudo ln -sf /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0
+if [ $(uname -m) = x86_64 ]; then
+    BIN_FILE=vhuit64
+else
+    BIN_FILE=vhuitarm64
+fi
+limactl shell $VM_NAME -- sudo wget https://www.virtualhere.com/sites/default/files/usbclient/${BIN_FILE} -O /usr/bin/VirtualHereClient
+limactl shell $VM_NAME -- sudo chmod +x /usr/bin/VirtualHereClient
+
+RULE_FILE="/etc/udev/rules.d/51-usbblaster.rules"
+limactl shell $VM_NAME -- sudo rm -rf $RULE_FILE
+for ID in 6001 6002 6003 6010 6810
+do
+    limactl shell $VM_NAME -- sudo bash -c "echo BUS==\"usb\", SYSFS{idVendor}==\"09fb\", SYSFS{idProduct}==\"$ID\", MODE=\"0666\" >> $RULE_FILE"
+done
+
 limactl shell $VM_NAME -- sudo DEBIAN_FRONTEND=noninteractive apt install -y \
         xfce4 xfce4-goodies xfce4-session lightdm language-pack-uk
 limactl shell $VM_NAME -- sudo apt autoremove -y

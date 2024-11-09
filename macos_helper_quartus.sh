@@ -88,7 +88,7 @@ limactl shell $VM_NAME -- sudo DEBIAN_FRONTEND=noninteractive apt install -y \
         bzip2:i386 g++-multilib libglibd-2.0-0:amd64 \
         libfreetype6:amd64 libsm6:amd64 libxrender1:amd64 \
         libfontconfig1:amd64 libxext6:amd64 libcrypt1:amd64 \
-        linux-image-generic
+        libjpeg62 linux-image-generic
 limactl shell $VM_NAME -- sudo ln -sf /lib/x86_64-linux-gnu/libudev.so.1 /lib/x86_64-linux-gnu/libudev.so.0
 if [ $(uname -m) = x86_64 ]; then
     BIN_FILE=vhuit64

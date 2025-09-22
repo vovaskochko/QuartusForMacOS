@@ -1,93 +1,195 @@
-**Overview**
+# Overview
 
-This solution for MacOS allows to install *Lima VM* with *Ubuntu Server 24.04* and *Xfce* desktop to support Quartus Prime software running on MacOS host system.
+## Table of Contents
 
-Here are the main highlights of the solution:
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation and Usage](#installation-and-usage)
+  - [How to Use (VZ Installation)](#how-to-use-vz-installation)
+  - [How to Use (QEMU Installation)](#how-to-use-qemu-installation)
+  - [Other](#other)
+- [Flashing with OpenOCD](#flashing-with-openocd)
+  - [SVF Generation](#svf-generation)
+  - [macOS](#macos)
+  - [Windows on AMD CPU](#windows-on-amd-cpu)
+  - [Notes](#notes)
 
-- `quartus` VM is created with an ability to access GUI:
-    - In case of **vz** GUI window will be opened automatically.
-    - In case of **qemu** you should use *Screen Sharing* utility.
+This solution for macOS enables the installation of *Lima VM* with *Ubuntu Server 24.04* and *Xfce* desktop to support running Quartus Prime software on a macOS host system.
 
-- UsbBlaster support is added with VirtualHere Client installed inside VM. To make it work you will need to install and run VirtualHere Server on your Mac(https://www.virtualhere.com/osx_server_software).
+It also includes instructions for board flashing with OpenOCD on macOS and Windows machines with AMD CPUs. The macOS solution can be adapted for Linux if needed.
 
-- *USB Client* shortcut was added to the Desktop to run client and restart jtagd. During the first run choose *Auto-Use Device* option for USB-Blaster in the VirtualHere Client window so it will be reconnected automatically.
+Key features:
 
-- x86_64 version of Ubuntu is used for Intel-based macs.
+- The `quartus` VM supports GUI access:
+  - For **vz**, a GUI window opens automatically.
+  - For **qemu**, use the *Screen Sharing* utility.
 
-- aarch64 version of Ubuntu is used for Apple M* processors.
+- USB-Blaster support is enabled with VirtualHere Client installed in the VM. Install and run VirtualHere Server on your Mac (https://www.virtualhere.com/osx_server_software). This works for Intel-based Macs; for M-series CPUs, follow the instructions in the **Flashing with OpenOCD** section.
 
-- qemu-user-static is used together with amd64 and i386 version of packages to ensure that Quartus works fine.
+- A *USB Client* desktop shortcut runs the client and restarts jtagd. On first use, select *Auto-Use Device* for USB-Blaster in the VirtualHere Client to enable automatic reconnection.
 
-- script automatically downloads *Quartus Prime Lite 20.1.1* and installs it together with *ModelSim*.
+- `x86_64` Ubuntu is used for Intel-based Macs.
 
-- `qenv.sh` is patched to fix startup issue on aarch64 machines.
+- `aarch64` Ubuntu is used for Apple M-series processors.
 
-- `quartus/linux64/libedt_wedtq.so` is patched to fix -novopt related error in Simulator.
+- `qemu-user-static` with amd64 and i386 packages ensures Quartus compatibility.
 
-**IMPORTANT:** `QuartusVM` folder will be created in your Mac home folder and mounted to the folder `/home/user/QuartusVM` inside VM. Use this directory to create Quartus projects and to backup any important files. All the files will be stored on your Mac and will not be lost even if VM will be broken.
+- The script automatically downloads and installs *Quartus Prime Lite 20.1.1* with *ModelSim*.
 
+- `qenv.sh` is patched to resolve startup issues on aarch64 machines.
 
-**Requirements**
-1. 35GB of free disk space.
-2. `lima` will be installed by the script but on some laptops it fails to run properly due to firewall or other restrictions.
-3. If you have either `admin` or `shadow` username on Mac then you will face some issues with starting LimaVM due to conflicts with standard linux groups. For that case you should either create another user or apply some workarounds.
+- `quartus/linux64/libedt_wedtq.so` is patched to fix a `-novopt` error in the Simulator.
 
+**Important:** The `QuartusVM` folder is created in your Mac home directory and mounted to `/home/user/QuartusVM` inside the VM. Use this directory for Quartus projects and backups. Files are stored on your Mac and persist even if the VM fails.
 
-**Installation**
-1. Give exec permissions to `macos_helper_quartus.sh`
-`chmod +x macos_helper_quartus.sh`
+- The repository includes a PowerShell script to install a Multipass Ubuntu VM for board flashing on Windows laptops with AMD CPUs, addressing USB-Blaster driver issues.
+
+## Requirements
+
+1. 35 GB of free disk space.
+2. The script installs `lima`, but it may fail on some laptops due to firewall or other restrictions.
+3. Using `admin` or `shadow` as a macOS username may cause conflicts with standard Linux groups. Create a new user or apply workarounds.
+
+## Installation and Usage
+
+1. Grant execute permissions to `macos_helper_quartus.sh`:
+   ```bash
+   chmod +x macos_helper_quartus.sh
+   ```
 
 2. Run the script and wait for completion:
-`./macos_helper_quartus.sh vz`
+   ```bash
+   ./macos_helper_quartus.sh vz
+   ```
 
-    **Note:** In case of issues with **vz**(Apple Virtualization Framework) you can try to reinstall it with **qemu** virtualization `./macos_helper_quartus.sh qemu`.
+   **Note:** Prefer `vz` (Apple Virtualization Framework). If issues persist after several attempts, reinstall with `qemu`:
+   ```bash
+   ./macos_helper_quartus.sh qemu
+   ```
+   Follow the *How to Use (QEMU Installation)* instructions for proper VM operation.
 
-3. In case of quartus download failure you will find `Install Quartus` shortcut on desktop. Execute it once and follow the instructions.
+3. If Quartus download fails, use the *Install Quartus* desktop shortcut inside VM and follow its instructions.
 
+### How to Use (VZ Installation)
 
-**How to use?(VZ installation)**
+1. Run `limactl start quartus` in the terminal.
 
-0. In terminal run command `limactl start quartus`.
+2. A login window should appear. Default credentials are Username: `user`, Password: `user`. Change the password with shell command `passwd` inside the VM if needed.
 
-1. Window with login should be open. By default Username is `user` and Password is `user`; you can change password with `passwd` command inside VM if needed.
+3. Double-click the *Quartus Prime Lite* desktop icon to start the software.
 
-2. On Desktop find *Quartus Prime Lite* icon and double click on it to start the software.
+   **Note:** On the first run, select *Mark Executable*, then choose *Run the Quartus Prime software* in the next window.
 
-    **NOTE:** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software*.
+   **Note:** If Quartus hangs, use the *Kill Quartus* desktop shortcut.
 
-    **NOTE:** In case of Quartus hang use desktop shortcut *Kill Quartus*.
+4. To flash a board, run VirtualHere Server on macOS, then use the *USB Client* shortcut on the VM desktop. If the Quartus Tools => Programmer window is open, close and reopen it, as Quartus does not detect the programmer automatically.
 
-3. To flash the board you should run VirtualHere Server on MacOS and then USB Client shortcut on VM desktop. If you have opened Quartus Tools=>Programmer window then it is better to close it and open again cause Quartus doesn't detect programmer automatically. 
+   **Important:** This may not work reliably on ARM-based Macs. Use `openocd` instead (check the **Flashing with OpenOCD** section).
 
-4. To shutdown VM you can click top right corner with username `user` and use *Shut Down...* option.
-If VM doesn't respond you can use `limactl stop quartus` in MacOS terminal or in rare cases forced stop `limactl stop -f quartus` if stopping takes too much time.
+5. To shut down the VM, click the top-right corner (username `user`) and select *Shut Down...*. If the VM is unresponsive, use `limactl stop quartus` in the macOS terminal, or `limactl stop -f quartus` for a forced stop if it takes too long.
 
+### How to Use (QEMU Installation)
 
-**How to use?(QEMU installation)**
+1. Run `limactl start quartus` in the terminal.
 
-0. In terminal run command `limactl start quartus`.
+2. Open *Screen Sharing* (via Cmd + Space, Dock, or Applications) and enter `vnc://127.0.0.1:5900` as the target address.
 
-1. Open Screen Sharing(via Cmd + Space or Dock or Applications) and use **vnc://127.0.0.1:5900** as the address of target machine.
+3. Enter the VNC password, obtained with:
+   ```bash
+   cat ~/.lima/quartus/vncpassword
+   ```
 
-2. You will be prompted to enter password. Get it with `cat ~/.lima/quartus/vncpassword`
+   **Note:** The VNC password changes after each VM reboot.
 
-    **NOTE:** VNC Password will be changed after each VM reboot.
+4. A login window should appear. Default credentials are Username: `user`, Password: `user`. Change the password with `passwd` inside the VM if needed.
 
-3. Window with login should be open. By default Username is `user` and Password is `user`; you can change password with `passwd` command inside VM if needed.
+5. Double-click the *Quartus Prime Lite* desktop icon to start the software.
 
-4. On Desktop find *Quartus Prime Lite* icon and double click on it to start the software.
+   **Note:** On the first run, select *Mark Executable*, choose *Run the Quartus Prime software*, close the program, and restart it. (Initial project creation may hang, requiring a rerun.)
 
-    **NOTE:** During the very first run choose *Mark Executable* and in the next window choose the second option *Run the Quartus Prime software* and then close the program and start it again (Sometimes project creation on first run hang therefore we need that rerun of the program.)
+   **Note:** If Quartus hangs, use the *Kill Quartus* desktop shortcut.
 
-    **NOTE:** In case of Quartus hang use desktop shortcut *Kill Quartus*.
+6. To flash a board, run VirtualHere Server on macOS, then use the *USB Client* shortcut on the VM desktop. If the Quartus Tools => Programmer window is open, close and reopen it, as Quartus does not detect the programmer automatically.
 
-5. To flash the board you should run VirtualHere Server on MacOS and then USB Client shortcut on VM desktop. If you have opened Quartus Tools=>Programmer window then it is better to close it and open again cause Quartus doesn't detect programmer automatically. 
+   **Important:** This may not work reliably on ARM-based Macs. Use `openocd` instead (check the **Flashing with OpenOCD** section).
 
-6. To shutdown VM you can click top right corner with username `user` and use *Shut Down...* option.
-If VM doesn't respond you can use `limactl stop quartus` in MacOS terminal or in rare cases forced stop `limactl stop -f quartus` if stopping takes too much time.
+7. To shut down the VM, click the top-right corner (username `user`) and select *Shut Down...*. If the VM is unresponsive, use `limactl stop quartus` in the macOS terminal, or `limactl stop -f quartus` for a forced stop if it takes too long.
 
+### Other
 
-**Other**
-1. We are using Xfce desktop and GUI. Opened apps are shown at the top of the screen. There is a dock at the bottom with terminal, browser and open folder applications.
-2. Ensure that current language on Mac is English while you work inside VM. Ukrainian layout is not supported by default and requires installation of extra packages and additional system configuration.
-3. To change display resolution use right click of button on Desktop and then Applications => Settings => Display
+1. The Xfce desktop and GUI are used. Open apps appear at the top of the screen, with a dock at the bottom containing terminal, browser, and file explorer applications.
+2. Ensure the macOS language is set to English while working in the VM. Ukrainian layout is not supported by default and requires additional package installation and system configuration.
+3. To change the display resolution, right-click the desktop, then select Applications => Settings => Display.
+
+## Flashing with OpenOCD
+
+This guide provides an alternative method to flash the ALTERA CYCLONE IV EP4CE6 board using OpenOCD. It can be adapted for other boards by editing `board.cfg` according to the target board's specifications. This approach is useful for macOS and Windows with AMD CPUs.
+
+### SVF Generation
+
+For both platforms, first export the project to SVF format:
+
+1. **Compile your design** in Intel Quartus Prime to generate a `.sof` or `.pof` file.
+2. **Open the Programmer** via Tools > Programmer from the main menu. Ensure the `.sof` or `.pof` file appears in the Programmer window; if not, add it.
+3. **Create the SVF file** by navigating to File > Create JAM, JBC, SVF, or ISC File... in the Programmer window.
+4. **Select SVF format**: In the dialog box, choose "Serial Vector File (SVF)" from the File Format dropdown and specify the output file name.
+5. **Click OK** to generate the SVF file.
+
+## MacOS
+
+1. Install OpenOCD with:
+   ```bash
+   brew install openocd
+   ```
+2. Use your Quartus virtual machine to generate the SVF file, following the **SVF Generation** section.
+3. Locate the generated SVF file and ensure macOS can access it, e.g., by placing it in the shared folder `/home/user/QuartusVM`.
+4. In the macOS Terminal, run:
+   ```bash
+   MY_SVF_FILE=path/to/svf/file/project.svf openocd -f path/to/board.cfg
+   ```
+   where `project.svf` is your generated SVF file and `board.cfg` is the file from this repository.
+5. The board's program should update. Note: The program resets to default upon board reboot.
+
+### Windows on AMD CPU
+
+**Note:** In Device Manager, ensure the USB-Blaster is recognized as `Altera USB-Blaster`. If it appears as an unknown device, connect it via a USB hub or adapter instead of directly to the laptop.
+
+1. **Install `usbipd` and bind USB-Blaster** (run in PowerShell with Administrator permissions). Required for first-time setup or if the USB-Blaster is plugged into a new USB port:
+   ```powershell
+   winget install --id dorssel.usbipd-win -e
+   usbipd bind -b $(usbipd.exe list | findstr "Altera USB-Blaster" | ForEach-Object { $_ -split '\s+' | Select-Object -First 1 })
+   ```
+
+   **Subsequent steps can be performed in a regular PowerShell without Administrator permissions.**
+
+2. **Create and set up VM**: Ensure `multipass` is installed. Enable script execution for the current session (type `Y` and Enter) and run the Quartus VM installation:
+   ```powershell
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Unrestricted
+   .\install_quartus_vm.ps1
+   ```
+
+3. **Attach device to VM**: On VM restart or USB-Blaster reconnection, run:
+   ```powershell
+   multipass exec quartus-vm -- bash -c 'HOST_IP=$(ip route | grep default | cut -f3 -d\ ); sudo apt install -y linux-modules-extra-$(uname -r) && sudo modprobe vhci-hcd && sudo usbip attach -r $HOST_IP -b $(usbip list --remote=$HOST_IP | grep "Blaster" | cut -f 1 -d:) && sleep 1 && lsusb'
+   ```
+
+4. **Prepare SVF file**: Follow the **SVF Generation** section above.
+
+5. **Flash the board**: Place `board.cfg` from this repository and the generated SVF file (`project.svf`, name may vary) in the shared folder `~/quartus-shared` (in your home directory), then run:
+   ```powershell
+   multipass exec quartus-vm -- bash -c "cd ~/quartus-shared; MY_SVF_FILE=project.svf openocd -f board.cfg"
+   ```
+
+6. **Stop VM**: When done, run:
+   ```powershell
+   multipass stop quartus-vm
+   ```
+
+### Notes
+
+- If you plug/unplug the device, rerun step 1 (if the USB port changed) and step 3.
+- After a VM restart, run step 3 first.
+- To remove the VM, use:
+   ```powershell
+   multipass delete --purge quartus-vm
+   ```

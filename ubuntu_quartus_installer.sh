@@ -1,7 +1,9 @@
 #!/bin/bash
 
-QUARTUS_LINK="https://cdrdv2.intel.com/v1/dl/getContent/660904/660963?filename=Quartus-lite-20.1.1.720-linux.tar"
-QUARTUS_LINK_ACCEPT="https://cdrdv2.intel.com/v1/dl/acceptEula/660904/660963?filename=Quartus-lite-20.1.1.720-linux.tar"
+CURL_IMPERSONATE_LINK="https://github.com/lwthiker/curl-impersonate/releases/download/v0.6.1/curl-impersonate-v0.6.1.$(uname -m)-linux-gnu.tar.gz"
+CURL_IMPERSONATE_ARCHIVE="$(realpath ~)/curl-impersonate.tar.gz"
+CURL_IMPERSONATE_DIR="$(realpath ~)/curl-impersonate"
+QUARTUS_LINK="https://download.altera.com/akdlm/software/acdsinst/20.1std.1/720/ib_tar/Quartus-lite-20.1.1.720-linux.tar"
 QUARTUS_ARCHIVE="$(realpath ~)/quartus_20.1.1.tar"
 QUARTUS_ARCHIVE_HASH="0bebcaece9d8a03af9a69a48adc45634"
 INSTALL_DIR="$(realpath ~)/intelFPGA_lite/20.1"
@@ -14,6 +16,16 @@ if [ "$#" -eq 1 ]; then
     fi
 fi
 
+# Download curl-impersonate binary:
+mkdir -p "${CURL_IMPERSONATE_DIR}"
+if [ ! -f "${CURL_IMPERSONATE_DIR}/curl_chrome99" ]; then
+    echo "Downloading curl-impersonate..."
+    curl -L -o "${CURL_IMPERSONATE_ARCHIVE}" "${CURL_IMPERSONATE_LINK}"
+    tar xvf "${CURL_IMPERSONATE_ARCHIVE}" -C "${CURL_IMPERSONATE_DIR}"
+    rm "${CURL_IMPERSONATE_ARCHIVE}"
+fi
+chmod +x "${CURL_IMPERSONATE_DIR}"/curl_chrome99
+
 # Download installer archive:
 for i in {1..5}; do
     if [ -f "$QUARTUS_ARCHIVE" ]; then
@@ -25,19 +37,12 @@ for i in {1..5}; do
     echo "Downloading Quartus Lite installer..."
     rm -rf "$QUARTUS_ARCHIVE"
     STATUS="fail"
-    wget "${QUARTUS_LINK}" -O "$QUARTUS_ARCHIVE"
+    "${CURL_IMPERSONATE_DIR}"/curl_chrome99 -L -o "$QUARTUS_ARCHIVE" "${QUARTUS_LINK}"
     if [ "$?" -ne 0 ]; then
         continue
     elif [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
         STATUS="ok"
         break
-    else
-        wget "$QUARTUS_LINK_ACCEPT" -O "$QUARTUS_ARCHIVE"
-        echo "accept link!!!"
-        if [ $(md5sum "$QUARTUS_ARCHIVE" | awk '{print $1}') = "${QUARTUS_ARCHIVE_HASH}" ]; then
-            STATUS="ok"
-            break
-        fi
     fi
 
     echo -e "ERROR: Failed to download $QUARTUS_ARCHIVE, retrying..."
@@ -48,6 +53,8 @@ if [ "$STATUS" = "fail" ]; then
     echo "ERROR: Failed to download quartus installer"
     exit 1
 fi
+
+rm -rf "${CURL_IMPERSONATE_DIR}"
 
 # Extract archive to the folder and remove archive file to save some space:
 echo "Extracting Quartus Lite installer..."

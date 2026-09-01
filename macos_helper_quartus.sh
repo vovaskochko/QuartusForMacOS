@@ -108,7 +108,10 @@ done
 limactl shell $VM_NAME -- sudo DEBIAN_FRONTEND=noninteractive apt install -y \
         xfce4 xfce4-goodies xfce4-session lightdm language-pack-uk
 limactl shell $VM_NAME -- sudo apt autoremove -y
-limactl shell $VM_NAME -- sudo apt install -y chromium-browser
+limactl shell $VM_NAME -- sudo add-apt-repository -y ppa:xtradeb/apps
+limactl shell $VM_NAME -- sudo apt update -y
+limactl shell $VM_NAME -- sudo apt install -y chromium libnss3 nss-plugin-pem ca-certificates
+limactl shell $VM_NAME -- sudo ln -sf /usr/bin/chromium /usr/bin/chromium-browser
 
 # Tune configuration to ensure that xfce will be used as a default desktop environment:
 limactl shell $VM_NAME -- sudo mkdir -p /var/lib/AccountsService/users/

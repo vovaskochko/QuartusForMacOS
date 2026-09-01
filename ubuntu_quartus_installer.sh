@@ -1,8 +1,14 @@
 #!/bin/bash
 
-CURL_IMPERSONATE_LINK="https://github.com/lwthiker/curl-impersonate/releases/download/v0.6.1/curl-impersonate-v0.6.1.$(uname -m)-linux-gnu.tar.gz"
+CURL_IMPERSONATE_VERSION="v0.6.1"
+CURL_IMPERSONATE_LINK="https://github.com/lwthiker/curl-impersonate/releases/download/${CURL_IMPERSONATE_VERSION}/curl-impersonate-${CURL_IMPERSONATE_VERSION}.$(uname -m)-linux-gnu.tar.gz"
 CURL_IMPERSONATE_ARCHIVE="$(realpath ~)/curl-impersonate.tar.gz"
 CURL_IMPERSONATE_DIR="$(realpath ~)/curl-impersonate"
+if [ "$(uname -m)" = "aarch64" ]; then
+    CURL_IMPERSONATE_HASH="b45f14366e4766fbd70a54a07182d2ffaf1e8aed0f0d85aa4e0183fa9d041694"
+elif [ "$(uname -m)" = "x86_64" ]; then
+    CURL_IMPERSONATE_HASH="fa1e1614f7ba69ccc66721a0f38be457a3647eb64c75d66974b56186e3316b12"
+fi
 QUARTUS_LINK="https://download.altera.com/akdlm/software/acdsinst/20.1std.1/720/ib_tar/Quartus-lite-20.1.1.720-linux.tar"
 QUARTUS_ARCHIVE="$(realpath ~)/quartus_20.1.1.tar"
 QUARTUS_ARCHIVE_HASH="0bebcaece9d8a03af9a69a48adc45634"
@@ -18,12 +24,35 @@ fi
 
 # Download curl-impersonate binary:
 mkdir -p "${CURL_IMPERSONATE_DIR}"
-if [ ! -f "${CURL_IMPERSONATE_DIR}/curl_chrome99" ]; then
+for i in {1..5}; do
+    if [ -f "${CURL_IMPERSONATE_ARCHIVE}" ]; then
+        if [ $(sha256sum "${CURL_IMPERSONATE_ARCHIVE}" | awk '{print $1}') = "${CURL_IMPERSONATE_HASH}" ]; then
+            STATUS="ok"
+            break
+        fi
+    fi
     echo "Downloading curl-impersonate..."
+    rm -f "${CURL_IMPERSONATE_ARCHIVE}"
+    STATUS="fail"
     curl -L -o "${CURL_IMPERSONATE_ARCHIVE}" "${CURL_IMPERSONATE_LINK}"
-    tar xvf "${CURL_IMPERSONATE_ARCHIVE}" -C "${CURL_IMPERSONATE_DIR}"
-    rm "${CURL_IMPERSONATE_ARCHIVE}"
+    if [ "$?" -ne 0 ]; then
+        continue
+    elif [ $(sha256sum "${CURL_IMPERSONATE_ARCHIVE}" | awk '{print $1}') = "${CURL_IMPERSONATE_HASH}" ]; then
+        STATUS="ok"
+        break
+    fi
+
+    echo "ERROR: Failed to download ${CURL_IMPERSONATE_ARCHIVE}, retrying..."
+    sleep 5
+done
+
+if [ "$STATUS" = "fail" ]; then
+    echo "ERROR: Failed to download curl-impersonate"
+    exit 1
 fi
+
+tar xvf "${CURL_IMPERSONATE_ARCHIVE}" -C "${CURL_IMPERSONATE_DIR}"
+rm -f "${CURL_IMPERSONATE_ARCHIVE}"
 chmod +x "${CURL_IMPERSONATE_DIR}"/curl_chrome99
 
 # Download installer archive:

@@ -5,8 +5,7 @@ echo "Script will automatically detect download completion"
 echo "        and will proceed with Quartus installation."
 echo "Press Enter to start"
 read $VAR
-
-QUARTUS_LINK="https://cdrdv2.intel.com/v1/dl/getContent/660904/660963?filename=Quartus-lite-20.1.1.720-linux.tar"
+QUARTUS_LINK="https://www.altera.com/download-center/license-agreement/72876/a7869d9813986f07987a7eb95177fe9c5061f521?filename=Quartus-lite-20.1.1.720-linux.tar"
 DOWNLOAD_FILE="$(realpath ~)/Downloads/Quartus-lite-20.1.1.720-linux.tar"
 chromium-browser ${QUARTUS_LINK} &
 
